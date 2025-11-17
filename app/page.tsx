@@ -227,8 +227,7 @@ export default function Page() {
             Scan Cost Planner
           </h1>
           <p className="text-slate-300 text-sm md:text-base">
-            เว็บช่วยคำนวณต้นทุน–ราคาขายงานสแกนเอกสาร ตามโมเดล Excel
-            ทั้งแบบไม่มี deadline (v2) และแบบมี deadline ที่ลูกค้ากำหนด (v3)
+            เว็บช่วยคำนวณต้นทุน–ราคาขายงานสแกนเอกสาร
           </p>
         </header>
 
@@ -248,7 +247,7 @@ export default function Page() {
             >
               <div className="font-semibold">ลูกค้าไม่กำหนดวันส่งงาน</div>
               <div className="text-xs md:text-sm text-slate-300 mt-1">
-                ใช้สูตรเหมือน ScanCostModel_v2.xlsx — คุณกรอกจำนวนคนเอง
+                คุณกรอกจำนวนคนเอง
               </div>
             </button>
 
@@ -264,7 +263,7 @@ export default function Page() {
             >
               <div className="font-semibold">ลูกค้ากำหนดวันส่งงาน</div>
               <div className="text-xs md:text-sm text-slate-300 mt-1">
-                ใช้สูตรเหมือน ScanCostModel_v3.xlsx — ระบบคำนวณจำนวนคน/จำนวนเครื่องให้
+                ระบบคำนวณจำนวนคน/จำนวนเครื่องให้
               </div>
             </button>
           </div>
@@ -402,7 +401,7 @@ export default function Page() {
 
               <div>
                 <label className="block text-slate-200 mb-1">
-                  ค่าอุปกรณ์สำนักงานต่อ 1 งาน (บาท)
+                  ค่าเตรียมงาน / ค่าอุปกรณ์สำนักงาน
                 </label>
                 <input
                   type="number"
@@ -507,7 +506,7 @@ export default function Page() {
 
               <div>
                 <label className="block text-slate-200 mb-1">
-                  ทดลองราคาขายต่อหน้า (บาท/หน้า) เพื่อดู GP ที่ได้จริง
+                  ราคาขายต่อหน้า (บาท/หน้า)
                 </label>
                 <input
                   type="number"
@@ -628,16 +627,16 @@ export default function Page() {
           {/* Trial section */}
           <div className="rounded-xl bg-slate-950/60 border border-slate-800 p-4 space-y-2 text-sm">
             <h3 className="font-semibold mb-1">
-              5. ทดลองราคาขายต่อหน้า ({input.trialPricePerPage.toFixed(2)} บาท/หน้า)
+              5. ราคาขายต่อหน้า ({input.trialPricePerPage.toFixed(2)} บาท/หน้า)
             </h3>
             <div className="flex justify-between">
-              <span>รายได้งานตามราคาที่ทดลอง</span>
+              <span>รายได้</span>
               <span className="font-semibold">
                 {formatBaht(result.trialRevenue)} บาท
               </span>
             </div>
             <div className="flex justify-between">
-              <span>ค่าความเสี่ยงจากราคาที่ทดลอง</span>
+              <span>ค่าความเสี่ยง</span>
               <span className="font-semibold">
                 {formatBaht(result.trialRiskAmount)} บาท
               </span>
