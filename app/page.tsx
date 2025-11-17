@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 
 type Mode = "noDeadline" | "withDeadline";
+type LaborMode = "perPage" | "salary";
 
 interface InputState {
   pages: number;                 // จำนวนหน้าที่ลูกค้าจ้าง
   laborPerPage: number;          // ค่าจ้างสแกนต่อหน้า
+  monthlySalaryPerWorker: number;// เงินเดือนต่อคน/เดือน (ใช้ถ้าเลือกจ้างแบบเงินเดือน)
   scannerMonthly: number;        // ค่าเช่าเครื่องสแกน/เดือน/เครื่อง
   pcMonthly: number;             // ค่าเช่าคอม/เดือน/เครื่อง
   workingDaysPerMonth: number;   // จำนวนวันทำงานต่อเดือน
@@ -47,11 +49,16 @@ function safeNumber(value: number): number {
   return value;
 }
 
-function calculate(input: InputState, mode: Mode): CalcResult {
+function calculate(
+  input: InputState,
+  mode: Mode,
+  laborMode: LaborMode
+): CalcResult {
   const errors: string[] = [];
 
   const pages = safeNumber(input.pages);
   const laborPerPage = safeNumber(input.laborPerPage);
+  const monthlySalaryPerWorker = safeNumber(input.monthlySalaryPerWorker);
   const scannerMonthly = safeNumber(input.scannerMonthly);
   const pcMonthly = safeNumber(input.pcMonthly);
   const workingDaysPerMonth = safeNumber(input.workingDaysPerMonth);
@@ -97,12 +104,19 @@ function calculate(input: InputState, mode: Mode): CalcResult {
   const monthlyRentalPerWorker = scannerMonthly + pcMonthly;
   const rentalTotal = monthlyRentalPerWorker * workers * monthsNeeded;
 
-  // 5) ต้นทุนอื่น ๆ
-  const laborCost = pages * laborPerPage;
+  // 5) ต้นทุนแรงงาน
+  let laborCost = 0;
+  if (laborMode === "perPage") {
+    laborCost = pages * laborPerPage;
+  } else {
+    laborCost = monthlySalaryPerWorker * workers * monthsNeeded;
+  }
+
+  // 6) ต้นทุนอื่น ๆ
   const officeCost = officePerJob;
   const baseCost = rentalTotal + laborCost + officeCost;
 
-  // 6) คำนวณรายได้ที่ต้องการ เพื่อให้ได้ GP + ความเสี่ยง
+  // 7) คำนวณรายได้ที่ต้องการ เพื่อให้ได้ GP + ความเสี่ยง
   let requiredRevenue: number | null = null;
   let requiredPricePerPage: number | null = null;
   let riskAmount: number | null = null;
@@ -119,7 +133,7 @@ function calculate(input: InputState, mode: Mode): CalcResult {
     }
   }
 
-  // 7) โหมดทดลอง: ตั้งราคาต่อหน้าเอง
+  // 8) โหมดทดลอง: ตั้งราคาต่อหน้าเอง
   let trialRevenue: number | null = null;
   let trialRiskAmount: number | null = null;
   let trialProfit: number | null = null;
@@ -160,9 +174,12 @@ function calculate(input: InputState, mode: Mode): CalcResult {
 
 export default function Page() {
   const [mode, setMode] = useState<Mode>("noDeadline");
+  const [laborMode, setLaborMode] = useState<LaborMode>("perPage");
+
   const [input, setInput] = useState<InputState>({
     pages: 20000,
     laborPerPage: 0.3,
+    monthlySalaryPerWorker: 15000,
     scannerMonthly: 4500,
     pcMonthly: 3000,
     workingDaysPerMonth: 22,
@@ -175,7 +192,10 @@ export default function Page() {
     trialPricePerPage: 1.5,
   });
 
-  const result = useMemo(() => calculate(input, mode), [input, mode]);
+  const result = useMemo(
+    () => calculate(input, mode, laborMode),
+    [input, mode, laborMode]
+  );
 
   const handleChangeNumber =
     (field: keyof InputState) =>
@@ -250,9 +270,47 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Labor mode selector */}
+        <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-6 space-y-4">
+          <h2 className="font-semibold text-lg">2. เลือกรูปแบบการจ้างคนสแกน</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setLaborMode("perPage")}
+              className={`rounded-xl px-4 py-3 text-left border text-sm md:text-base transition
+              ${
+                laborMode === "perPage"
+                  ? "border-amber-400 bg-amber-500/10"
+                  : "border-slate-700 bg-slate-900/40 hover:border-slate-500"
+              }`}
+            >
+              <div className="font-semibold">จ้างรายหน้า</div>
+              <div className="text-xs md:text-sm text-slate-300 mt-1">
+                คิดค่าแรง = จำนวนหน้า × ค่าจ้างต่อหน้า (เช่น 0.30 บาท/หน้า)
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLaborMode("salary")}
+              className={`rounded-xl px-4 py-3 text-left border text-sm md:text-base transition
+              ${
+                laborMode === "salary"
+                  ? "border-indigo-400 bg-indigo-500/10"
+                  : "border-slate-700 bg-slate-900/40 hover:border-slate-500"
+              }`}
+            >
+              <div className="font-semibold">จ้างแบบเงินเดือน</div>
+              <div className="text-xs md:text-sm text-slate-300 mt-1">
+                คิดค่าแรง = เงินเดือนต่อคน/เดือน × จำนวนคน × จำนวนเดือนที่ต้องทำงาน
+              </div>
+            </button>
+          </div>
+        </section>
+
         {/* Inputs */}
         <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-6 space-y-4">
-          <h2 className="font-semibold text-lg">2. ใส่ข้อมูลต้นทุนและเงื่อนไขงาน</h2>
+          <h2 className="font-semibold text-lg">3. ใส่ข้อมูลต้นทุนและเงื่อนไขงาน</h2>
 
           <div className="grid md:grid-cols-2 gap-4">
             {/* คอลัมน์ซ้าย */}
@@ -270,18 +328,40 @@ export default function Page() {
                 />
               </div>
 
-              <div>
-                <label className="block text-slate-200 mb-1">
-                  ค่าจ้างสแกนต่อหน้า (บาท/หน้า)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2"
-                  value={input.laborPerPage}
-                  onChange={handleChangeNumber("laborPerPage")}
-                />
-              </div>
+              {laborMode === "perPage" && (
+                <div>
+                  <label className="block text-slate-200 mb-1">
+                    ค่าจ้างสแกนต่อหน้า (บาท/หน้า)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2"
+                    value={input.laborPerPage}
+                    onChange={handleChangeNumber("laborPerPage")}
+                  />
+                  <p className="text-xs text-slate-400 mt-1">
+                    เช่น 0.30 บาท/หน้า
+                  </p>
+                </div>
+              )}
+
+              {laborMode === "salary" && (
+                <div>
+                  <label className="block text-slate-200 mb-1">
+                    เงินเดือนต่อคนต่อเดือน (บาท)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2"
+                    value={input.monthlySalaryPerWorker}
+                    onChange={handleChangeNumber("monthlySalaryPerWorker")}
+                  />
+                  <p className="text-xs text-slate-400 mt-1">
+                    เช่น 15,000 บาท/คน/เดือน
+                  </p>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -452,7 +532,7 @@ export default function Page() {
 
         {/* ผลลัพธ์ */}
         <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-6 space-y-4">
-          <h2 className="font-semibold text-lg">3. ผลลัพธ์การคำนวณ</h2>
+          <h2 className="font-semibold text-lg">4. ผลลัพธ์การคำนวณ</h2>
 
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             {/* Block 1: จำนวนคน / เวลา / เดือนเช่า */}
@@ -489,17 +569,17 @@ export default function Page() {
                   {formatBaht(result.rentalTotal)} บาท
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span>ค่าแรงรวม (ตามรูปแบบการจ้างที่เลือก)</span>
+                <span className="font-semibold">
+                  {formatBaht(result.laborCost)} บาท
+                </span>
+              </div>
             </div>
 
             {/* Block 2: ต้นทุน / รายได้ / ราคาขาย */}
             <div className="rounded-xl bg-slate-950/60 border border-slate-800 p-4 space-y-2">
               <h3 className="font-semibold mb-1">ต้นทุน & ราคาขายที่ควรคิด</h3>
-              <div className="flex justify-between">
-                <span>ค่าจ้างแรงงานสแกน</span>
-                <span className="font-semibold">
-                  {formatBaht(result.laborCost)} บาท
-                </span>
-              </div>
               <div className="flex justify-between">
                 <span>ค่าอุปกรณ์สำนักงาน</span>
                 <span className="font-semibold">
@@ -536,13 +616,19 @@ export default function Page() {
                   {formatBaht(result.targetGPAmount)} บาท
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span>กำไรจริงหลังหักต้นทุน+ความเสี่ยง (บาท)</span>
+                <span className="font-semibold">
+                  {formatBaht(result.profitAfterRisk)} บาท
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Trial section */}
           <div className="rounded-xl bg-slate-950/60 border border-slate-800 p-4 space-y-2 text-sm">
             <h3 className="font-semibold mb-1">
-              4. ทดลองราคาขายต่อหน้า ({input.trialPricePerPage.toFixed(2)} บาท/หน้า)
+              5. ทดลองราคาขายต่อหน้า ({input.trialPricePerPage.toFixed(2)} บาท/หน้า)
             </h3>
             <div className="flex justify-between">
               <span>รายได้งานตามราคาที่ทดลอง</span>
