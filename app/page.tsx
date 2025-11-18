@@ -1,24 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
 
 type Mode = "noDeadline" | "withDeadline";
 type LaborMode = "perPage" | "salary";
 
 interface InputState {
-  pages: number;                 // จำนวนหน้าที่ลูกค้าจ้าง
-  laborPerPage: number;          // ค่าจ้างสแกนต่อหน้า
-  monthlySalaryPerWorker: number;// เงินเดือนต่อคน/เดือน (ใช้ถ้าเลือกจ้างแบบเงินเดือน)
-  scannerMonthly: number;        // ค่าเช่าเครื่องสแกน/เดือน/เครื่อง
-  pcMonthly: number;             // ค่าเช่าคอม/เดือน/เครื่อง
-  workingDaysPerMonth: number;   // จำนวนวันทำงานต่อเดือน
-  officePerJob: number;          // ค่าอุปกรณ์สำนักงาน/งาน
-  riskRate: number;              // % ค่าความเสี่ยง (เช่น 0.03)
-  gpRate: number;                // % GP เป้าหมาย (เช่น 0.35)
+  pages: number; // จำนวนหน้าที่ลูกค้าจ้าง
+  laborPerPage: number; // ค่าจ้างสแกนต่อหน้า
+  monthlySalaryPerWorker: number; // เงินเดือนต่อคน/เดือน (ใช้ถ้าเลือกจ้างแบบเงินเดือน)
+  scannerMonthly: number; // ค่าเช่าเครื่องสแกน/เดือน/เครื่อง
+  pcMonthly: number; // ค่าเช่าคอม/เดือน/เครื่อง
+  workingDaysPerMonth: number; // จำนวนวันทำงานต่อเดือน
+  officePerJob: number; // ค่าอุปกรณ์สำนักงาน/งาน
+  riskRate: number; // % ค่าความเสี่ยง (เช่น 0.03)
+  gpRate: number; // % GP เป้าหมาย (เช่น 0.35)
   capacityPerPersonPerDay: number; // ความสามารถสแกนต่อคน/วัน
-  workersManual: number;         // จำนวนคน (ใช้ในโหมดไม่มี deadline)
-  deadlineDays: number;          // จำนวนวันตามที่ลูกค้ากำหนด (โหมดมี deadline)
-  trialPricePerPage: number;     // ใช้ทดลองราคาขายต่อหน้า
+  workersManual: number; // จำนวนคน (ใช้ในโหมดไม่มี deadline)
+  deadlineDays: number; // จำนวนวันตามที่ลูกค้ากำหนด (โหมดมี deadline)
+  trialPricePerPage: number; // ใช้ทดลองราคาขายต่อหน้า
 }
 
 interface CalcResult {
@@ -78,8 +79,10 @@ function calculate(
   const trialPricePerPage = safeNumber(input.trialPricePerPage);
 
   if (pages <= 0) errors.push("กรุณากรอกจำนวนหน้าให้มากกว่า 0");
-  if (capacity <= 0) errors.push("กรุณากรอกความสามารถสแกนต่อคน/วันให้มากกว่า 0");
-  if (workingDaysPerMonth <= 0) errors.push("กรุณากรอกจำนวนวันทำงานต่อเดือนให้มากกว่า 0");
+  if (capacity <= 0)
+    errors.push("กรุณากรอกความสามารถสแกนต่อคน/วันให้มากกว่า 0");
+  if (workingDaysPerMonth <= 0)
+    errors.push("กรุณากรอกจำนวนวันทำงานต่อเดือนให้มากกว่า 0");
   if (1 - riskRate - gpRate <= 0) {
     errors.push("ค่าความเสี่ยง + GP ต้องรวมน้อยกว่า 100%");
   }
@@ -221,9 +224,15 @@ export default function Page() {
     [scenarios, input, mode, laborMode]
   );
 
+  const getGpPercent = (res: CalcResult) => {
+    if (res.requiredRevenue == null || res.profitAfterRisk == null) return null;
+    if (res.requiredRevenue === 0) return null;
+    return res.profitAfterRisk / res.requiredRevenue;
+  };
+
   const handleChangeNumber =
     (field: keyof InputState) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setInput((prev) => ({
         ...prev,
@@ -233,12 +242,10 @@ export default function Page() {
 
   const handleScenarioChange =
     (id: number, field: "pages" | "deadlineDays") =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value === "" ? 0 : Number(e.target.value);
       setScenarios((prev) =>
-        prev.map((s) =>
-          s.id === id ? { ...s, [field]: value } : s
-        )
+        prev.map((s) => (s.id === id ? { ...s, [field]: value } : s))
       );
     };
 
@@ -263,7 +270,7 @@ export default function Page() {
             Scan Cost Simulation Dashboard
           </div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-            Scan Cost Planner & Scenario Dashboard
+            Scan Cost Planner &amp; Scenario Dashboard
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-3xl">
             คำนวณต้นทุนและราคาขายงานสแกนเอกสารทั้งแบบราย Job และเปรียบเทียบ
@@ -589,7 +596,7 @@ export default function Page() {
             {/* Block 1 */}
             <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-2">
               <h3 className="font-semibold mb-1 text-emerald-200">
-                จำนวนคน & ระยะเวลาทำงาน
+                จำนวนคน &amp; ระยะเวลาทำงาน
               </h3>
               <div className="flex justify-between">
                 <span>จำนวนคนที่ต้องใช้</span>
@@ -633,7 +640,7 @@ export default function Page() {
             {/* Block 2 */}
             <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-2">
               <h3 className="font-semibold mb-1 text-sky-200">
-                ต้นทุน & ราคาขายที่ควรคิด
+                ต้นทุน &amp; ราคาขายที่ควรคิด
               </h3>
               <div className="flex justify-between">
                 <span>ค่าอุปกรณ์สำนักงาน</span>
@@ -807,20 +814,38 @@ export default function Page() {
                         {formatNumber(result.monthsNeeded, 0)} เดือน
                       </span>
                     </div>
+
+                    <hr className="border-slate-800 my-1" />
+
                     <div className="flex justify-between">
-                      <span>ต้นทุนฐาน</span>
+                      <span>ต้นทุนฐาน (เช่า+แรงงาน+อุปกรณ์)</span>
                       <span className="font-semibold">
                         {formatBaht(result.baseCost)} ฿
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>รายได้ที่ควรคิด</span>
+                      <span>รายได้ที่ควรคิด (รวมความเสี่ยง+GP)</span>
                       <span className="font-semibold">
                         {formatBaht(result.requiredRevenue)} ฿
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>ราคาขายต่อหน้า</span>
+                      <span>กำไรขั้นต้น (บาท)</span>
+                      <span className="font-semibold text-emerald-300">
+                        {formatBaht(result.profitAfterRisk)} ฿
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>กำไรขั้นต้น (%)</span>
+                      <span className="font-semibold text-emerald-300">
+                        {formatPercent(getGpPercent(result))}
+                      </span>
+                    </div>
+
+                    <hr className="border-slate-800 my-1" />
+
+                    <div className="flex justify-between">
+                      <span>ราคาขายต่อหน้า (ตามเป้า GP)</span>
                       <span className="font-semibold text-emerald-300">
                         {formatBaht(result.requiredPricePerPage)} ฿/หน้า
                       </span>
