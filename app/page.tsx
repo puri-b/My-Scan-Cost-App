@@ -1,25 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { ChangeEvent } from "react";
+import { useMemo, useState, ChangeEvent } from "react";
 
 type Mode = "noDeadline" | "withDeadline";
 type LaborMode = "perPage" | "salary";
 
 interface InputState {
-  pages: number; // จำนวนหน้าที่ลูกค้าจ้าง
-  laborPerPage: number; // ค่าจ้างสแกนต่อหน้า
-  monthlySalaryPerWorker: number; // เงินเดือนต่อคน/เดือน (ใช้ถ้าเลือกจ้างแบบเงินเดือน)
-  scannerMonthly: number; // ค่าเช่าเครื่องสแกน/เดือน/เครื่อง
-  pcMonthly: number; // ค่าเช่าคอม/เดือน/เครื่อง
-  workingDaysPerMonth: number; // จำนวนวันทำงานต่อเดือน
-  officePerJob: number; // ค่าอุปกรณ์สำนักงาน/งาน
-  riskRate: number; // % ค่าความเสี่ยง (เช่น 0.03)
-  gpRate: number; // % GP เป้าหมาย (เช่น 0.35)
-  capacityPerPersonPerDay: number; // ความสามารถสแกนต่อคน/วัน
-  workersManual: number; // จำนวนคน (ใช้ในโหมดไม่มี deadline)
-  deadlineDays: number; // จำนวนวันตามที่ลูกค้ากำหนด (โหมดมี deadline)
-  trialPricePerPage: number; // ใช้ทดลองราคาขายต่อหน้า
+  pages: number;
+  laborPerPage: number;
+  monthlySalaryPerWorker: number;
+  scannerMonthly: number;
+  pcMonthly: number;
+  workingDaysPerMonth: number;
+  officePerJob: number;
+  riskRate: number;
+  gpRate: number;
+  capacityPerPersonPerDay: number;
+  workersManual: number;
+  deadlineDays: number;
+  trialPricePerPage: number;
 }
 
 interface CalcResult {
@@ -141,7 +140,7 @@ function calculate(
     }
   }
 
-  // 8) โหมดทดลองราคา
+  // 8) ทดลองราคาเอง
   let trialRevenue: number | null = null;
   let trialRiskAmount: number | null = null;
   let trialProfit: number | null = null;
@@ -261,42 +260,46 @@ export default function Page() {
       : (n * 100).toLocaleString("th-TH", { maximumFractionDigits: 2 }) + " %";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50 flex justify-center px-4 py-10">
-      <div className="w-full max-w-6xl space-y-8">
+    <main className="min-h-screen relative overflow-hidden text-slate-50 flex justify-center px-4 py-10">
+      {/* พื้นหลังแบบ Liquid / iOS style */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(96,165,250,0.35)_0,_transparent_55%),radial-gradient(circle_at_bottom,_rgba(52,211,153,0.2)_0,_transparent_55%),linear-gradient(to_bottom_right,#020617,#020617)]" />
+      <div className="pointer-events-none absolute inset-0 backdrop-blur-3xl" />
+
+      <div className="relative w-full max-w-6xl space-y-8">
         {/* Header */}
         <header className="space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            Scan Cost Simulation Dashboard
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl px-3 py-1 text-xs text-emerald-100 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
+            Liquid Glass · Scan Cost Simulation
           </div>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
             Scan Cost Planner &amp; Scenario Dashboard
           </h1>
-          <p className="text-slate-300 text-sm md:text-base max-w-3xl">
-            คำนวณต้นทุนและราคาขายงานสแกนเอกสารทั้งแบบราย Job และเปรียบเทียบ
-            หลาย Scenario เช่น 20K / 50K / 100K หน้า เพื่อช่วยตัดสินใจตั้งราคาที่เหมาะสม
+          <p className="text-slate-100/80 text-sm md:text-base max-w-3xl">
+            คำนวณต้นทุนและราคาขายงานสแกนเอกสารแบบโปร พร้อมดูผล
+            หลาย&nbsp;Scenario เช่น 20K / 50K / 100K หน้า ในสไตล์ Liquid Glass
           </p>
         </header>
 
         {/* Mode selector */}
-        <section className="bg-slate-900/70 backdrop-blur border border-slate-800/80 rounded-2xl p-4 md:p-6 space-y-4 shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
+        <section className="bg-white/5 border border-white/15 rounded-3xl p-4 md:p-6 space-y-4 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <span className="inline-block h-6 w-1 rounded-full bg-emerald-400" />
+            <span className="inline-block h-6 w-1 rounded-full bg-emerald-300" />
             1. เลือกโหมดการคำนวณงาน 1 Job
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => setMode("noDeadline")}
-              className={`rounded-xl px-4 py-3 text-left border text-sm md:text-base transition
+              className={`rounded-2xl px-4 py-3 text-left border text-sm md:text-base transition-all duration-200
               ${
                 mode === "noDeadline"
-                  ? "border-emerald-400 bg-emerald-500/10 shadow-[0_0_25px_rgba(16,185,129,0.45)]"
-                  : "border-slate-700 bg-slate-900/60 hover:border-slate-500"
+                  ? "border-emerald-300/80 bg-emerald-300/15 shadow-[0_0_30px_rgba(16,185,129,0.55)] scale-[1.01]"
+                  : "border-white/15 bg-white/5 hover:bg-white/10 hover:border-emerald-200/60"
               }`}
             >
               <div className="font-semibold">ลูกค้าไม่กำหนดวันส่งงาน</div>
-              <div className="text-xs md:text-sm text-slate-300 mt-1">
+              <div className="text-xs md:text-sm text-slate-100/80 mt-1">
                 ใช้สูตรเหมือน ScanCostModel_v2.xlsx — คุณกำหนดจำนวนคนเอง
               </div>
             </button>
@@ -304,15 +307,15 @@ export default function Page() {
             <button
               type="button"
               onClick={() => setMode("withDeadline")}
-              className={`rounded-xl px-4 py-3 text-left border text-sm md:text-base transition
+              className={`rounded-2xl px-4 py-3 text-left border text-sm md:text-base transition-all duration-200
               ${
                 mode === "withDeadline"
-                  ? "border-cyan-400 bg-cyan-500/10 shadow-[0_0_25px_rgba(34,211,238,0.45)]"
-                  : "border-slate-700 bg-slate-900/60 hover:border-slate-500"
+                  ? "border-cyan-300/80 bg-cyan-300/15 shadow-[0_0_30px_rgba(34,211,238,0.55)] scale-[1.01]"
+                  : "border-white/15 bg-white/5 hover:bg-white/10 hover:border-cyan-200/60"
               }`}
             >
               <div className="font-semibold">ลูกค้ากำหนดวันส่งงาน</div>
-              <div className="text-xs md:text-sm text-slate-300 mt-1">
+              <div className="text-xs md:text-sm text-slate-100/80 mt-1">
                 ใช้สูตรเหมือน ScanCostModel_v3.xlsx — ระบบคำนวณจำนวนคน/เครื่องให้
               </div>
             </button>
@@ -320,24 +323,24 @@ export default function Page() {
         </section>
 
         {/* Labor mode selector */}
-        <section className="bg-slate-900/70 backdrop-blur border border-slate-800/80 rounded-2xl p-4 md:p-6 space-y-4 shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
+        <section className="bg-white/5 border border-white/15 rounded-3xl p-4 md:p-6 space-y-4 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <span className="inline-block h-6 w-1 rounded-full bg-indigo-400" />
+            <span className="inline-block h-6 w-1 rounded-full bg-indigo-300" />
             2. เลือกรูปแบบการจ้างคนสแกน
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => setLaborMode("perPage")}
-              className={`rounded-xl px-4 py-3 text-left border text-sm md:text-base transition
+              className={`rounded-2xl px-4 py-3 text-left border text-sm md:text-base transition-all duration-200
               ${
                 laborMode === "perPage"
-                  ? "border-amber-400 bg-amber-500/10 shadow-[0_0_25px_rgba(251,191,36,0.45)]"
-                  : "border-slate-700 bg-slate-900/60 hover:border-slate-500"
+                  ? "border-amber-300/80 bg-amber-300/15 shadow-[0_0_30px_rgba(251,191,36,0.55)] scale-[1.01]"
+                  : "border-white/15 bg-white/5 hover:bg-white/10 hover:border-amber-200/60"
               }`}
             >
               <div className="font-semibold">จ้างรายหน้า</div>
-              <div className="text-xs md:text-sm text-slate-300 mt-1">
+              <div className="text-xs md:text-sm text-slate-100/80 mt-1">
                 ค่าแรง = จำนวนหน้า × ค่าจ้างต่อหน้า (เช่น 0.30 บาท/หน้า)
               </div>
             </button>
@@ -345,15 +348,15 @@ export default function Page() {
             <button
               type="button"
               onClick={() => setLaborMode("salary")}
-              className={`rounded-xl px-4 py-3 text-left border text-sm md:text-base transition
+              className={`rounded-2xl px-4 py-3 text-left border text-sm md:text-base transition-all duration-200
               ${
                 laborMode === "salary"
-                  ? "border-fuchsia-400 bg-fuchsia-500/10 shadow-[0_0_25px_rgba(244,114,182,0.45)]"
-                  : "border-slate-700 bg-slate-900/60 hover:border-slate-500"
+                  ? "border-fuchsia-300/80 bg-fuchsia-300/15 shadow-[0_0_30px_rgba(244,114,182,0.55)] scale-[1.01]"
+                  : "border-white/15 bg-white/5 hover:bg-white/10 hover:border-fuchsia-200/60"
               }`}
             >
               <div className="font-semibold">จ้างแบบเงินเดือน</div>
-              <div className="text-xs md:text-sm text-slate-300 mt-1">
+              <div className="text-xs md:text-sm text-slate-100/80 mt-1">
                 ค่าแรง = เงินเดือนต่อคน/เดือน × จำนวนคน × จำนวนเดือนที่ทำงาน
               </div>
             </button>
@@ -361,22 +364,22 @@ export default function Page() {
         </section>
 
         {/* Inputs */}
-        <section className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 md:p-6 space-y-4 shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
+        <section className="bg-white/6 border border-white/15 rounded-3xl p-4 md:p-6 space-y-4 backdrop-blur-2xl shadow-[0_22px_60px_rgba(0,0,0,0.7)]">
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <span className="inline-block h-6 w-1 rounded-full bg-sky-400" />
+            <span className="inline-block h-6 w-1 rounded-full bg-sky-300" />
             3. ใส่ข้อมูลต้นทุนและเงื่อนไขงาน (Single Job)
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4">
-            {/* คอลัมน์ซ้าย */}
+            {/* ซ้าย */}
             <div className="space-y-3 text-sm">
               <div>
-                <label className="block text-slate-200 mb-1">
+                <label className="block text-slate-50 mb-1">
                   จำนวนหน้าที่ลูกค้าจ้าง (หน้า)
                 </label>
                 <input
                   type="number"
-                  className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                  className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300/80 focus:border-transparent backdrop-blur-xl"
                   value={input.pages}
                   onChange={handleChangeNumber("pages")}
                   min={0}
@@ -385,17 +388,17 @@ export default function Page() {
 
               {laborMode === "perPage" && (
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     ค่าจ้างสแกนต่อหน้า (บาท/หน้า)
                   </label>
                   <input
                     type="number"
                     step="0.01"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.laborPerPage}
                     onChange={handleChangeNumber("laborPerPage")}
                   />
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-100/70 mt-1">
                     เช่น 0.30 บาท/หน้า
                   </p>
                 </div>
@@ -403,16 +406,16 @@ export default function Page() {
 
               {laborMode === "salary" && (
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     เงินเดือนต่อคนต่อเดือน (บาท)
                   </label>
                   <input
                     type="number"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-fuchsia-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-fuchsia-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.monthlySalaryPerWorker}
                     onChange={handleChangeNumber("monthlySalaryPerWorker")}
                   />
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-100/70 mt-1">
                     เช่น 15,000 บาท/คน/เดือน
                   </p>
                 </div>
@@ -420,23 +423,23 @@ export default function Page() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     ค่าเช่าเครื่องสแกน/เดือน/เครื่อง
                   </label>
                   <input
                     type="number"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.scannerMonthly}
                     onChange={handleChangeNumber("scannerMonthly")}
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     ค่าเช่าคอมพิวเตอร์/เดือน/เครื่อง
                   </label>
                   <input
                     type="number"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.pcMonthly}
                     onChange={handleChangeNumber("pcMonthly")}
                   />
@@ -444,41 +447,41 @@ export default function Page() {
               </div>
 
               <div>
-                <label className="block text-slate-200 mb-1">
+                <label className="block text-slate-50 mb-1">
                   จำนวนวันทำงานต่อเดือน (วัน)
                 </label>
                 <input
                   type="number"
-                  className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                  className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300/80 focus:border-transparent backdrop-blur-xl"
                   value={input.workingDaysPerMonth}
                   onChange={handleChangeNumber("workingDaysPerMonth")}
                 />
               </div>
 
               <div>
-                <label className="block text-slate-200 mb-1">
+                <label className="block text-slate-50 mb-1">
                   ค่าอุปกรณ์สำนักงานต่อ 1 งาน (บาท)
                 </label>
                 <input
                   type="number"
-                  className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                  className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300/80 focus:border-transparent backdrop-blur-xl"
                   value={input.officePerJob}
                   onChange={handleChangeNumber("officePerJob")}
                 />
               </div>
             </div>
 
-            {/* คอลัมน์ขวา */}
+            {/* ขวา */}
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     ค่าความเสี่ยง (% ของรายได้)
                   </label>
                   <input
                     type="number"
                     step="0.01"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.riskRate * 100}
                     onChange={(e) =>
                       setInput((prev) => ({
@@ -492,13 +495,13 @@ export default function Page() {
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     กำไรขั้นต้นที่ต้องการ GP (%)
                   </label>
                   <input
                     type="number"
                     step="0.01"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.gpRate * 100}
                     onChange={(e) =>
                       setInput((prev) => ({
@@ -514,12 +517,12 @@ export default function Page() {
               </div>
 
               <div>
-                <label className="block text-slate-200 mb-1">
+                <label className="block text-slate-50 mb-1">
                   ความสามารถในการสแกนต่อคน (หน้า/วัน)
                 </label>
                 <input
                   type="number"
-                  className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                  className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300/80 focus:border-transparent backdrop-blur-xl"
                   value={input.capacityPerPersonPerDay}
                   onChange={handleChangeNumber("capacityPerPersonPerDay")}
                 />
@@ -527,33 +530,33 @@ export default function Page() {
 
               {mode === "noDeadline" ? (
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     จำนวนคนทำงาน (ใช้ในโหมดไม่มี deadline)
                   </label>
                   <input
                     type="number"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.workersManual}
                     onChange={handleChangeNumber("workersManual")}
                     min={1}
                   />
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-100/70 mt-1">
                     ระบบจะใช้จำนวนคนนี้คำนวณจำนวนวัน และจำนวนเดือนที่ต้องเช่าเครื่อง
                   </p>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-slate-200 mb-1">
+                  <label className="block text-slate-50 mb-1">
                     ลูกค้าให้เวลาทำงาน (วัน)
                   </label>
                   <input
                     type="number"
-                    className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                    className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300/80 focus:border-transparent backdrop-blur-xl"
                     value={input.deadlineDays}
                     onChange={handleChangeNumber("deadlineDays")}
                     min={1}
                   />
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-100/70 mt-1">
                     ระบบจะคำนวณจำนวนคนที่ต้องใช้ = CEILING(จำนวนหน้า ÷
                     (ความสามารถ/คน/วัน × จำนวนวัน))
                   </p>
@@ -561,13 +564,13 @@ export default function Page() {
               )}
 
               <div>
-                <label className="block text-slate-200 mb-1">
+                <label className="block text-slate-50 mb-1">
                   ทดลองราคาขายต่อหน้า (บาท/หน้า) เพื่อดู GP ที่ได้จริง
                 </label>
                 <input
                   type="number"
                   step="0.01"
-                  className="w-full rounded-lg bg-slate-950/70 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                  className="w-full rounded-2xl bg-white/5 border border-white/20 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300/80 focus:border-transparent backdrop-blur-xl"
                   value={input.trialPricePerPage}
                   onChange={handleChangeNumber("trialPricePerPage")}
                 />
@@ -575,9 +578,8 @@ export default function Page() {
             </div>
           </div>
 
-          {/* แสดง error */}
           {result.errors.length > 0 && (
-            <div className="mt-3 rounded-xl border border-red-500/60 bg-red-950/40 px-4 py-3 text-sm text-red-100 space-y-1">
+            <div className="mt-3 rounded-2xl border border-red-400/60 bg-red-500/10 px-4 py-3 text-sm text-red-50 space-y-1 backdrop-blur-xl">
               {result.errors.map((err, idx) => (
                 <div key={idx}>• {err}</div>
               ))}
@@ -585,17 +587,17 @@ export default function Page() {
           )}
         </section>
 
-        {/* ผลลัพธ์ Single Job */}
-        <section className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-4 md:p-6 space-y-4 shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
+        {/* Single Job Result */}
+        <section className="bg-white/6 border border-white/15 rounded-3xl p-4 md:p-6 space-y-4 backdrop-blur-2xl shadow-[0_22px_60px_rgba(0,0,0,0.7)]">
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <span className="inline-block h-6 w-1 rounded-full bg-emerald-400" />
+            <span className="inline-block h-6 w-1 rounded-full bg-emerald-300" />
             4. ผลลัพธ์การคำนวณงานปัจจุบัน (Single Job)
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             {/* Block 1 */}
-            <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-2">
-              <h3 className="font-semibold mb-1 text-emerald-200">
+            <div className="rounded-2xl bg-white/5 border border-white/15 p-4 space-y-2 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)]">
+              <h3 className="font-semibold mb-1 text-emerald-100">
                 จำนวนคน &amp; ระยะเวลาทำงาน
               </h3>
               <div className="flex justify-between">
@@ -638,8 +640,8 @@ export default function Page() {
             </div>
 
             {/* Block 2 */}
-            <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-2">
-              <h3 className="font-semibold mb-1 text-sky-200">
+            <div className="rounded-2xl bg-white/5 border border-white/15 p-4 space-y-2 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)]">
+              <h3 className="font-semibold mb-1 text-sky-100">
                 ต้นทุน &amp; ราคาขายที่ควรคิด
               </h3>
               <div className="flex justify-between">
@@ -662,7 +664,7 @@ export default function Page() {
               </div>
               <div className="flex justify-between">
                 <span>ราคาขายต่อหน้า (ตามเป้า GP)</span>
-                <span className="font-semibold">
+                <span className="font-semibold text-emerald-200">
                   {formatBaht(result.requiredPricePerPage)} บาท/หน้า
                 </span>
               </div>
@@ -688,8 +690,8 @@ export default function Page() {
           </div>
 
           {/* Trial section */}
-          <div className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 space-y-2 text-sm">
-            <h3 className="font-semibold mb-1 text-amber-200">
+          <div className="rounded-2xl bg-white/5 border border-white/15 p-4 space-y-2 text-sm backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)]">
+            <h3 className="font-semibold mb-1 text-amber-100">
               5. ทดลองราคาขายต่อหน้า ({input.trialPricePerPage.toFixed(2)} บาท/หน้า)
             </h3>
             <div className="flex justify-between">
@@ -720,16 +722,16 @@ export default function Page() {
         </section>
 
         {/* Scenario Dashboard */}
-        <section className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-4 md:p-6 space-y-4 shadow-[0_22px_60px_rgba(0,0,0,0.7)]">
+        <section className="bg-white/6 border border-white/15 rounded-3xl p-4 md:p-6 space-y-4 backdrop-blur-2xl shadow-[0_26px_70px_rgba(0,0,0,0.85)]">
           <h2 className="font-semibold text-lg flex items-center gap-2">
-            <span className="inline-block h-6 w-1 rounded-full bg-pink-400" />
+            <span className="inline-block h-6 w-1 rounded-full bg-pink-300" />
             6. Scenario Dashboard – เปรียบเทียบหลายเคสพร้อมกัน
           </h2>
-          <p className="text-slate-300 text-xs md:text-sm">
-            คุณสามารถลองกำหนดจำนวนหน้าและกำหนดวันส่งงานของแต่ละ Scenario
+          <p className="text-slate-100/80 text-xs md:text-sm">
+            กำหนดจำนวนหน้าและวันส่งงานของแต่ละ Scenario
             เพื่อดูผลกระทบต่อ{" "}
-            <span className="font-semibold text-emerald-200">
-              จำนวนคน, ระยะเวลา, ต้นทุน และราคาขายต่อหน้า
+            <span className="font-semibold text-emerald-100">
+              จำนวนคน, ระยะเวลา, ต้นทุน, กำไร และราคาขายต่อหน้า
             </span>{" "}
             ภายใต้เงื่อนไขต้นทุนและ %GP เดียวกัน
           </p>
@@ -738,18 +740,18 @@ export default function Page() {
             {scenarioResults.map(({ scenario, result }) => (
               <div
                 key={scenario.id}
-                className="rounded-2xl bg-slate-950/80 border border-slate-800 p-4 space-y-3"
+                className="rounded-3xl bg-white/7 border border-white/18 p-4 space-y-3 backdrop-blur-2xl shadow-[0_18px_45px_rgba(0,0,0,0.75)]"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-slate-400">
+                    <div className="text-[11px] uppercase tracking-wide text-slate-100/70">
                       Scenario
                     </div>
                     <div className="font-semibold text-base">
                       {scenario.name}
                     </div>
                   </div>
-                  <span className="rounded-full border border-slate-700 px-3 py-1 text-[11px] text-slate-300">
+                  <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] text-slate-50 backdrop-blur-xl">
                     {mode === "withDeadline"
                       ? "มี Deadline"
                       : "ไม่มี Deadline"}
@@ -758,12 +760,12 @@ export default function Page() {
 
                 <div className="space-y-2">
                   <div>
-                    <label className="block text-slate-300 mb-1">
+                    <label className="block text-slate-50 mb-1">
                       จำนวนหน้า (หน้า)
                     </label>
                     <input
                       type="number"
-                      className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                      className="w-full rounded-2xl bg-white/5 border border-white/20 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300/80 focus:border-transparent backdrop-blur-xl"
                       value={scenario.pages}
                       onChange={handleScenarioChange(scenario.id, "pages")}
                       min={0}
@@ -771,12 +773,12 @@ export default function Page() {
                   </div>
                   {mode === "withDeadline" && (
                     <div>
-                      <label className="block text-slate-300 mb-1">
+                      <label className="block text-slate-50 mb-1">
                         ลูกค้าให้เวลาทำงาน (วัน)
                       </label>
                       <input
                         type="number"
-                        className="w-full rounded-lg bg-slate-950 border border-slate-700 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                        className="w-full rounded-2xl bg-white/5 border border-white/20 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-300/80 focus:border-transparent backdrop-blur-xl"
                         value={scenario.deadlineDays}
                         onChange={handleScenarioChange(
                           scenario.id,
@@ -789,7 +791,7 @@ export default function Page() {
                 </div>
 
                 {result.errors.length > 0 ? (
-                  <div className="mt-2 rounded-lg border border-red-500/60 bg-red-950/40 px-3 py-2 text-[11px] text-red-100 space-y-1">
+                  <div className="mt-2 rounded-2xl border border-red-400/60 bg-red-500/10 px-3 py-2 text-[11px] text-red-50 space-y-1 backdrop-blur-xl">
                     {result.errors.map((err, idx) => (
                       <div key={idx}>• {err}</div>
                     ))}
@@ -815,7 +817,7 @@ export default function Page() {
                       </span>
                     </div>
 
-                    <hr className="border-slate-800 my-1" />
+                    <hr className="border-white/15 my-1" />
 
                     <div className="flex justify-between">
                       <span>ต้นทุนฐาน (เช่า+แรงงาน+อุปกรณ์)</span>
@@ -831,22 +833,22 @@ export default function Page() {
                     </div>
                     <div className="flex justify-between">
                       <span>กำไรขั้นต้น (บาท)</span>
-                      <span className="font-semibold text-emerald-300">
+                      <span className="font-semibold text-emerald-200">
                         {formatBaht(result.profitAfterRisk)} ฿
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>กำไรขั้นต้น (%)</span>
-                      <span className="font-semibold text-emerald-300">
+                      <span className="font-semibold text-emerald-200">
                         {formatPercent(getGpPercent(result))}
                       </span>
                     </div>
 
-                    <hr className="border-slate-800 my-1" />
+                    <hr className="border-white/15 my-1" />
 
                     <div className="flex justify-between">
                       <span>ราคาขายต่อหน้า (ตามเป้า GP)</span>
-                      <span className="font-semibold text-emerald-300">
+                      <span className="font-semibold text-emerald-200">
                         {formatBaht(result.requiredPricePerPage)} ฿/หน้า
                       </span>
                     </div>
