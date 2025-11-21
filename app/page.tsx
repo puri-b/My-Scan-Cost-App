@@ -267,7 +267,7 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-100 to-sky-200 text-slate-50 flex justify-center px-4 py-10">
+    <main className="min-h-screen bg-gradient-to-b from-sky-100 to-sky-200 text-slate-800 flex justify-center px-4 py-10">
       <div className="w-full max-w-6xl space-y-8">
         {/* Header */}
         <header className="space-y-3">
@@ -335,7 +335,7 @@ export default function Page() {
               <div className="font-semibold text-slate-800">
                 ลูกค้ากำหนดวันส่งงาน
               </div>
-              <div className="text-xs md:text-sm text-slate-500 mt-1">
+              <div className="text-xs md:text-sm text-slate-800 mt-1">
                 ใช้สูตรเหมือน ScanCostModel_v3.xlsx — ระบบคำนวณจำนวนคน/เครื่องให้
               </div>
             </button>
@@ -576,7 +576,7 @@ export default function Page() {
                     onChange={handleChangeNumber("deadlineDays")}
                     min={1}
                   />
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-800 mt-1">
                     ระบบจะคำนวณจำนวนคนที่ต้องใช้ = CEILING(จำนวนหน้า ÷
                     (ความสามารถ/คน/วัน × จำนวนวัน))
                   </p>
